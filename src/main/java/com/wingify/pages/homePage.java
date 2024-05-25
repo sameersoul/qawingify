@@ -5,21 +5,23 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class homePage {
     private WebDriver driver;
 
-    // Locator for the Amount column header
-    private By amountHeader = By.xpath("//th[contains(text(), 'AMOUNT')]");
-    // Locator for the Amount cells
-    private By amountCells = By.xpath("//td[contains(@class, 'text-right') and contains(text(), ' USD')]");
+    // Locators
+    private By amountHeader = By.xpath("//th[contains(text(), 'Amount')]");
+    private By amountCells = By.xpath("//td[@class='text-right bolder nowrap']/span");
 
     public homePage(WebDriver driver) {
         this.driver = driver;
     }
 
-    public void clickAmountHeader() {
+    public void clickAmountHeader() throws InterruptedException {
+        driver.findElement(amountHeader).click();
+        Thread.sleep(5000);
         driver.findElement(amountHeader).click();
     }
 
@@ -28,21 +30,26 @@ public class homePage {
         List<Double> amounts = new ArrayList<>();
 
         for (WebElement element : amountElements) {
-            String amountText = element.getText().replace(" USD", "").replace(",", "").trim();
-            amounts.add(Double.parseDouble(amountText));
+            String amountText = element.getText().replace(",", "").replace(" USD", "").trim();
+            double amount = Double.parseDouble(amountText.startsWith("+") || amountText.startsWith("-") ? amountText.substring(1) : amountText);
+            amounts.add(amountText.startsWith("-") ? -amount : amount);
         }
         return amounts;
     }
 
+    public List<Double> getSortedAmounts() {
+        List<Double> amounts = getAmounts();
+        Collections.sort(amounts);
+        return amounts;
+    }
+
     public boolean isSorted(List<Double> list) {
-        if (list.isEmpty() || list.size() == 1) {
-            return true;
-        }
-        for (int i = 1; i < list.size(); i++) {
-            if (list.get(i) < list.get(i - 1)) {
-                return false;
-            }
-        }
-        return true;
+        if (list.size() <= 1) return true;
+        List<Double> sortedList = new ArrayList<>(list);
+        Collections.sort(sortedList);
+        if (list.equals(sortedList)) return true;
+
+        Collections.sort(sortedList, Collections.reverseOrder());
+        return list.equals(sortedList);
     }
 }

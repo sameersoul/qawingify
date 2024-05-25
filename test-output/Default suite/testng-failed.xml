@@ -5,9 +5,9 @@
     <classes>
       <class name="com.wingify.tests.HomePageTest">
         <methods>
-          <include name="tearDown"/>
           <include name="setUp"/>
           <include name="testAmountSorting"/>
+          <include name="tearDown"/>
         </methods>
       </class> <!-- com.wingify.tests.HomePageTest -->
     </classes>
